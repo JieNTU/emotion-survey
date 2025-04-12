@@ -11,7 +11,7 @@ export default function MoodSurveyApp() {
   const intervalRef = useRef(null);
   const [uploadStatus, setUploadStatus] = useState("");
 
-  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz9DwhdHYxEkRbPpSlIuC9zd8awnaO3o5q6ecCYgwXToBzLfutNTgYQt7JxSoTucQ-rrw/exec";
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwgYaXWtKj2Xi4LVErm6yhV2YaUQGWYWxmqYBOI_TnfjI9n14ePmzdchOJFTOiXKwBACw/exec";
 
   const pad = (v) => String(v).padStart(2, "0");
 
