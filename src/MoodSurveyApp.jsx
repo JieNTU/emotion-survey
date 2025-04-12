@@ -9,6 +9,9 @@ export default function MoodSurveyApp() {
   const [q2, setQ2] = useState(5);
   const [isWaiting, setIsWaiting] = useState(false);
   const intervalRef = useRef(null);
+  const [uploadStatus, setUploadStatus] = useState("");
+
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz9DwhdHYxEkRbPpSlIuC9zd8awnaO3o5q6ecCYgwXToBzLfutNTgYQt7JxSoTucQ-rrw/exec";
 
   const pad = (v) => String(v).padStart(2, "0");
 
@@ -19,9 +22,8 @@ export default function MoodSurveyApp() {
   };
 
   const triggerQuestion = () => {
-    const now = new Date();
-    const newTime = now.toISOString();
-    setCurrentQuestionTime(newTime);
+    const now = new Date().toISOString();
+    setCurrentQuestionTime(now);
     setQ1(5);
     setQ2(5);
     setIsWaiting(false);
@@ -40,6 +42,8 @@ export default function MoodSurveyApp() {
   const stopSurvey = () => {
     clearInterval(intervalRef.current);
     setIsRunning(false);
+    setCurrentQuestionTime(null);
+    uploadCSV();
   };
 
   const submitResponse = () => {
@@ -84,29 +88,37 @@ export default function MoodSurveyApp() {
     return result;
   };
 
-  const uploadData = () => {
-    const filled = getFilledResponses();
-    if (filled.length === 0) {
-      alert("尚未有任何資料");
-      return;
+  const uploadToGDrive = async (csvContent, filename) => {
+    try {
+      setUploadStatus("📤 上傳中...");
+      const res = await fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ csv: csvContent, filename }),
+      });
+      const text = await res.text();
+      setUploadStatus(text.includes("成功") ? "✅ 上傳成功！" : "❌ 上傳失敗：" + text);
+    } catch (err) {
+      setUploadStatus("❌ 上傳失敗：" + err.message);
     }
+  };
 
-    const d = new Date(filled[filled.length - 1].time);
-    const MM = pad(d.getMonth() + 1);
-    const DD = pad(d.getDate());
-    const hh = pad(d.getHours());
-    const mm = pad(d.getMinutes());
-    const filename = `${userID}_${MM}${DD}_${hh}${mm}.csv`;
+  const uploadCSV = () => {
+    const data = getFilledResponses();
+    if (data.length === 0) return;
 
-    const header = "ID,Time,Q1,Q2\n";
-    const rows = filled.map(r => `${r.id},${r.time},${r.Q1},${r.Q2}`).join("\n");
-    const blob = new Blob([header + rows], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
+    const csv = [
+      ["ID", "Time", "Q1", "Q2"],
+      ...data.map((r) => [r.id, r.time, r.Q1, r.Q2]),
+    ]
+      .map((row) => row.join(","))
+      .join("\n");
+
+    const lastTime = data[data.length - 1].time;
+    const t = new Date(lastTime);
+    const filename = `${userID}_${pad(t.getMonth() + 1)}${pad(t.getDate())}_${pad(t.getHours())}${pad(t.getMinutes())}.csv`;
+
+    uploadToGDrive(csv, filename);
   };
 
   return (
@@ -114,7 +126,7 @@ export default function MoodSurveyApp() {
       {!isRunning && (
         <div>
           <input
-            placeholder="請輸入你的 ID"
+            placeholder="請輸入 ID"
             value={userID}
             onChange={(e) => setUserID(e.target.value)}
             style={{ padding: 6, margin: 4, border: "1px solid #ccc", borderRadius: 4 }}
@@ -188,7 +200,7 @@ export default function MoodSurveyApp() {
           onClick={stopSurvey}
           style={{ padding: 8, marginTop: 30, backgroundColor: "#f88", borderRadius: 6 }}
         >
-          停止
+          停止並上傳
         </button>
       )}
 
@@ -216,12 +228,11 @@ export default function MoodSurveyApp() {
             </tbody>
           </table>
 
-          <button
-            onClick={uploadData}
-            style={{ marginTop: 12, padding: 10, backgroundColor: "#28a", color: "white", borderRadius: 6 }}
-          >
-            ⬆ 下載結果 CSV
-          </button>
+          {uploadStatus && (
+            <div style={{ marginTop: 12, color: uploadStatus.includes("成功") ? "green" : "red" }}>
+              {uploadStatus}
+            </div>
+          )}
         </div>
       )}
     </div>
