@@ -60,6 +60,10 @@ export default function MoodSurveyApp() {
   };
 
   const finalizeUpload = async () => {
+    if (!validatePost()) {
+      alert("請完整填寫結束後問卷");
+      return;
+    }
     const data = getFilledResponses();
     if (data.length === 0) return;
 
@@ -88,13 +92,10 @@ export default function MoodSurveyApp() {
     const filename = `${userID}_${pad(t.getMonth() + 1)}${pad(t.getDate())}_${pad(t.getHours())}${pad(t.getMinutes())}.csv`;
 
     try {
-      const formData = new FormData();
-      formData.append("csv", csv);
-      formData.append("filename", filename);
-
       const res = await fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ csv, filename })
       });
       const txt = await res.text();
       alert(txt);
@@ -105,10 +106,7 @@ export default function MoodSurveyApp() {
   };
 
   const submitResponse = () => {
-    setResponses((prev) => [
-      ...prev,
-      { id: userID, time: currentQuestionTime, Q1: q1, Q2: q2, Traffic: traffic },
-    ]);
+    setResponses((prev) => [...prev, { id: userID, time: currentQuestionTime, Q1: q1, Q2: q2, Traffic: traffic }]);
     setCurrentQuestionTime(null);
     setIsWaiting(true);
   };
