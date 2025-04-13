@@ -29,12 +29,16 @@ export default function MoodSurveyApp() {
     return date.toISOString();
   };
 
-  const validatePre = () => {
-    return userID.trim() && qPre.purpose && qPre.beenThere && qPre.usedGPS;
-  };
+  const validatePre = () => userID.trim() && qPre.purpose && qPre.beenThere && qPre.usedGPS;
+  const validatePost = () => qPost.dist && qPost.time && qPost.shortestDist && qPost.shortestTime;
 
-  const validatePost = () => {
-    return qPost.dist && qPost.time && qPost.shortestDist && qPost.shortestTime;
+  const triggerQuestion = () => {
+    const now = new Date().toISOString();
+    setCurrentQuestionTime(now);
+    setQ1(5);
+    setQ2(5);
+    setTraffic(5);
+    setIsWaiting(false);
   };
 
   const startSurvey = () => {
@@ -55,12 +59,7 @@ export default function MoodSurveyApp() {
     setStage("post");
   };
 
-  const finalizeUpload = () => {
-    if (!validatePost()) {
-      alert("請完整填寫結束後問卷");
-      return;
-    }
-
+  const finalizeUpload = async () => {
     const data = getFilledResponses();
     if (data.length === 0) return;
 
@@ -88,43 +87,27 @@ export default function MoodSurveyApp() {
     const t = new Date(lastTime);
     const filename = `${userID}_${pad(t.getMonth() + 1)}${pad(t.getDate())}_${pad(t.getHours())}${pad(t.getMinutes())}.csv`;
 
-    uploadToGDrive(csv, filename);
-    setStage("done");
-  };
-
-  const uploadToGDrive = async (csvContent, filename) => {
     try {
+      const formData = new FormData();
+      formData.append("csv", csv);
+      formData.append("filename", filename);
+
       const res = await fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ csv: csvContent, filename, qPre, qPost })
+        body: formData,
       });
       const txt = await res.text();
       alert(txt);
+      setStage("done");
     } catch (err) {
       alert("❌ 上傳失敗：" + err.message);
     }
   };
 
-  const triggerQuestion = () => {
-    const now = new Date().toISOString();
-    setCurrentQuestionTime(now);
-    setQ1(5);
-    setQ2(5);
-    setTraffic(5);
-    setIsWaiting(false);
-  };
-
   const submitResponse = () => {
     setResponses((prev) => [
       ...prev,
-      {
-        id: userID,
-        time: currentQuestionTime,
-        Q1: q1,
-        Q2: q2,
-        Traffic: traffic,
-      },
+      { id: userID, time: currentQuestionTime, Q1: q1, Q2: q2, Traffic: traffic },
     ]);
     setCurrentQuestionTime(null);
     setIsWaiting(true);
@@ -214,7 +197,7 @@ export default function MoodSurveyApp() {
         <div>
           <h3>問卷進行中：{new Date(currentQuestionTime).toLocaleTimeString()}</h3>
           <RangeQuestion label="Q1: 不愉快 - 中立 - 愉快" left="非常不愉快" center="中立" right="非常愉快" value={q1} onChange={setQ1} />
-          <RangeQuestion label="Q2: 冷靜 - 中性 - 興奮" left="非常冷靜" center="中性" right="非常興奮" value={q2} onChange={setQ2} />
+          <RangeQuestion label="Q2: 沉靜 - 中性 - 興奮" left="非常冷靜" center="中性" right="非常興奮" value={q2} onChange={setQ2} />
           <RangeQuestion label="Q3: 車流量" left="非常少" center="中等" right="非常多" value={traffic} onChange={setTraffic} />
           <button onClick={submitResponse} style={{ marginTop: 20, backgroundColor: '#4caf50', color: '#fff', padding: '10px 20px', borderRadius: 6 }}>提交本次問卷</button>
         </div>
@@ -242,8 +225,8 @@ export default function MoodSurveyApp() {
             <label><strong>您覺得大約騎了多遠？（公里）</strong></label><br />
             <input value={qPost.dist} onChange={(e) => setQPost({ ...qPost, dist: e.target.value })} style={{ width: '100%' }} />
           </div>
-          <RadioQuestion label="您覺得此趟是最短距離路徑嗎？" options={["是", "否"]} value={qPost.shortestDist} onChange={(val) => setQPost({ ...qPost, shortestDist: val })} />
-          <RadioQuestion label="您覺得此趟是最短時間路徑嗎？" options={["是", "否"]} value={qPost.shortestTime} onChange={(val) => setQPost({ ...qPost, shortestTime: val })} />
+          <RadioQuestion label="您覺得此次是最短距離路徑嗎？" options={["是", "否"]} value={qPost.shortestDist} onChange={(val) => setQPost({ ...qPost, shortestDist: val })} />
+          <RadioQuestion label="您覺得此次是最短時間路徑嗎？" options={["是", "否"]} value={qPost.shortestTime} onChange={(val) => setQPost({ ...qPost, shortestTime: val })} />
           <button onClick={finalizeUpload} style={{ marginTop: 20, backgroundColor: '#2196f3', color: '#fff', padding: '10px 20px', borderRadius: 6 }}>送出全部資料</button>
         </div>
       )}
@@ -251,4 +234,4 @@ export default function MoodSurveyApp() {
       {stage === "done" && <p>✅ 資料已成功上傳，感謝您的填寫！</p>}
     </div>
   );
-} 
+}
