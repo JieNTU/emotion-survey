@@ -63,8 +63,8 @@ export default function MoodSurveyApp() {
 
     const lastTime = data[data.length - 1].time;
     const t = new Date(lastTime);
-    const filename = `${userID}_${pad(t.getMonth() + 1)}${pad(t.getDate())}_${pad(t.getHours())}${pad(t.getMinutes())}.csv`;
-    
+    const filename = ${userID}_${pad(t.getMonth() + 1)}${pad(t.getDate())}_${pad(t.getHours())}${pad(t.getMinutes())}.csv;
+
     uploadToGDrive(csv, filename);
     setStage("done");
   };
