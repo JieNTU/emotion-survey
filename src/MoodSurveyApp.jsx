@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 
 export default function MoodSurveyApp() {
@@ -11,16 +12,10 @@ export default function MoodSurveyApp() {
   const [isWaiting, setIsWaiting] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const intervalRef = useRef(null);
-  const [qPre, setQPre] = useState({
-    emotion: 5, arousal: 5, anxiety: 5,
-    purpose: '', beenThere: '', usedGPS: ''
-  });
-  const [qPost, setQPost] = useState({
-    emotion: 5, arousal: 5, anxiety: 5,
-    dist: '', time: '', shortestDist: '', shortestTime: ''
-  });
+  const [qPre, setQPre] = useState({ emotion: 5, arousal: 5, anxiety: 5, purpose: '', beenThere: '', usedGPS: '' });
+  const [qPost, setQPost] = useState({ emotion: 5, arousal: 5, anxiety: 5, dist: '', time: '', shortestDist: '', shortestTime: '' });
 
-  const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz4Q8c4q7G83FUMTzKguw7sQ0pncfqyDKHREoNh3aD3nQ5KN1l3CpNug-XXvPr-IIEJaQ/exec';
+  const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwSutWjU5j2ESmBOe3xosORVOIc_z_aMyEAF--EetTZdwpWxVcyXguKyEiNFugS_EhcBw/exec';
 
   const pad = (v) => String(v).padStart(2, '0');
   const normalizeToMinute = (isoString) => {
@@ -38,8 +33,11 @@ export default function MoodSurveyApp() {
     setIsWaiting(false);
   };
 
+  const validatePre = () => userID && qPre.purpose && qPre.beenThere && qPre.usedGPS;
+  const validatePost = () => qPost.dist && qPost.time && qPost.shortestDist && qPost.shortestTime;
+
   const startSurvey = () => {
-    if (!userID.trim() || !qPre.purpose || !qPre.beenThere || !qPre.usedGPS) {
+    if (!validatePre()) {
       alert('請完整填寫出發前問卷與 ID');
       return;
     }
@@ -57,6 +55,10 @@ export default function MoodSurveyApp() {
   };
 
   const finalizeUpload = async () => {
+    if (!validatePost()) {
+      alert('請完整填寫結束後問卷');
+      return;
+    }
     const data = getFilledResponses();
     if (data.length === 0) return;
 
@@ -80,8 +82,7 @@ export default function MoodSurveyApp() {
       ['Post-Shortest Time?', qPost.shortestTime]
     ].map((row) => row.join(',')).join('\n');
 
-    const lastTime = data[data.length - 1].time;
-    const t = new Date(lastTime);
+    const t = new Date();
     const filename = `${userID}_${pad(t.getMonth() + 1)}${pad(t.getDate())}_${pad(t.getHours())}${pad(t.getMinutes())}.csv`;
 
     try {
@@ -99,16 +100,7 @@ export default function MoodSurveyApp() {
   };
 
   const submitResponse = () => {
-    setResponses((prev) => [
-      ...prev,
-      {
-        id: userID,
-        time: currentQuestionTime,
-        Q1: q1,
-        Q2: q2,
-        Traffic: traffic
-      }
-    ]);
+    setResponses((prev) => [...prev, { id: userID, time: currentQuestionTime, Q1: q1, Q2: q2, Traffic: traffic }]);
     setCurrentQuestionTime(null);
     setIsWaiting(true);
   };
@@ -129,11 +121,7 @@ export default function MoodSurveyApp() {
     const cursor = new Date(start);
     while (cursor <= end) {
       const key = cursor.toISOString();
-      result.push(
-        dedupedMap.has(key)
-          ? dedupedMap.get(key)
-          : { id: userID, time: key, Q1: 'NA', Q2: 'NA', Traffic: 'NA' }
-      );
+      result.push(dedupedMap.has(key) ? dedupedMap.get(key) : { id: userID, time: key, Q1: 'NA', Q2: 'NA', Traffic: 'NA' });
       cursor.setMinutes(cursor.getMinutes() + 1);
     }
     return result;
