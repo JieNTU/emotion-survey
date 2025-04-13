@@ -82,6 +82,22 @@ export default function MoodSurveyApp() {
     return result;
   };
 
+  const uploadToGDrive = async (csvContent, filename) => {
+    try {
+      const res = await fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/plain",
+        },
+        body: JSON.stringify({ csv: csvContent, filename }),
+      });
+      const txt = await res.text();
+      alert(txt);
+    } catch (err) {
+      alert("❌ 上傳失敗：" + err.message);
+    }
+  };
+
   const finalizeUpload = async () => {
     if (!validatePost()) {
       alert("請完整填寫結束後問卷");
@@ -113,18 +129,8 @@ export default function MoodSurveyApp() {
     const t = new Date();
     const filename = `${userID}_${pad(t.getMonth() + 1)}${pad(t.getDate())}_${pad(t.getHours())}${pad(t.getMinutes())}.csv`;
 
-    try {
-      const res = await fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ csv, filename }),
-      });
-      const txt = await res.text();
-      alert(txt);
-      setStage("done");
-    } catch (err) {
-      alert("❌ 上傳失敗：" + err.message);
-    }
+    uploadToGDrive(csv, filename);
+    setStage("done");
   };
 
   const RangeQuestion = ({ label, left, center, right, value, onChange }) => (
@@ -152,7 +158,7 @@ export default function MoodSurveyApp() {
 
   return (
     <div style={{ padding: 20, fontFamily: 'Arial', maxWidth: 600, margin: 'auto' }}>
-      {stage === 'pre' && (
+          {stage === 'pre' && (
         <div>
           <h3>出發前問卷</h3>
           <input placeholder="請輸入 ID" value={userID} onChange={(e) => setUserID(e.target.value)} style={{ width: '100%', marginBottom: 10 }} />
@@ -203,6 +209,6 @@ export default function MoodSurveyApp() {
           <button onClick={finalizeUpload} style={{ marginTop: 20, backgroundColor: '#2196f3', color: '#fff', padding: '10px 20px', borderRadius: 6 }}>送出全部資料</button>
         </div>
       )}
-    </div>
+      </div>
   );
 }
