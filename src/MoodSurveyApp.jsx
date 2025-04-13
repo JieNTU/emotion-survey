@@ -90,16 +90,17 @@ export default function MoodSurveyApp() {
 
   const uploadToGDrive = async (csvContent, filename) => {
     try {
-      setUploadStatus("📤 上傳中...");
       const res = await fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "text/plain", // ⚠️ 使用 text/plain 避免觸發預檢請求
+        },
         body: JSON.stringify({ csv: csvContent, filename }),
       });
-      const text = await res.text();
-      setUploadStatus(text.includes("成功") ? "✅ 上傳成功！" : "❌ 上傳失敗：" + text);
+      const txt = await res.text();
+      alert(txt);
     } catch (err) {
-      setUploadStatus("❌ 上傳失敗：" + err.message);
+      alert("❌ 上傳失敗：" + err.message);
     }
   };
 
