@@ -131,6 +131,7 @@ export default function MoodSurveyApp() {
 
     uploadToGDrive(csv, filename);
     setStage("done");
+    alert("✅ 上傳成功，感謝您的填寫！");
   };
 
   const RangeQuestion = ({ label, left, center, right, value, onChange }) => (
@@ -176,7 +177,7 @@ export default function MoodSurveyApp() {
         <div>
           <h3>問卷進行中：{new Date(currentQuestionTime).toLocaleTimeString()}</h3>
           <RangeQuestion label="Q1: 不愉快 - 中立 - 愉快" left="非常不愉快" center="中立" right="非常愉快" value={q1} onChange={setQ1} />
-          <RangeQuestion label="Q2: 沉靜 - 中性 - 興奮" left="非常冷靜" center="中性" right="非常興奮" value={q2} onChange={setQ2} />
+          <RangeQuestion label="Q2: 冷靜 - 中立 - 興奮" left="非常冷靜" center="中立" right="非常興奮" value={q2} onChange={setQ2} />
           <RangeQuestion label="Q3: 車流量" left="非常少" center="中等" right="非常多" value={traffic} onChange={setTraffic} />
           <button onClick={submitResponse} style={{ marginTop: 20, backgroundColor: '#4caf50', color: '#fff', padding: '10px 20px', borderRadius: 6 }}>提交本次問卷</button>
         </div>
@@ -201,12 +202,15 @@ export default function MoodSurveyApp() {
             <input value={qPost.time} onChange={(e) => setQPost({ ...qPost, time: e.target.value })} style={{ width: '100%' }} />
           </div>
           <div style={{ marginTop: 20 }}>
-            <label><strong>您覺得大約騎了多遠？（公里）</strong></label><br />
+            <label><strong>您覺得大約騎了多遠？（公里，請填寫數字，可有小數點）</strong></label><br />
             <input value={qPost.dist} onChange={(e) => setQPost({ ...qPost, dist: e.target.value })} style={{ width: '100%' }} />
           </div>
           <RadioQuestion label="您覺得此次是最短距離路徑嗎？" options={["是", "否"]} value={qPost.shortestDist} onChange={(val) => setQPost({ ...qPost, shortestDist: val })} />
           <RadioQuestion label="您覺得此次是最短時間路徑嗎？" options={["是", "否"]} value={qPost.shortestTime} onChange={(val) => setQPost({ ...qPost, shortestTime: val })} />
           <button onClick={finalizeUpload} style={{ marginTop: 20, backgroundColor: '#2196f3', color: '#fff', padding: '10px 20px', borderRadius: 6 }}>送出全部資料</button>
+          <p style={{ fontSize: '0.9em', color: '#555', marginTop: 6 }}>
+            請等待跳出上傳成功訊息再離開
+          </p>
         </div>
       )}
       </div>
