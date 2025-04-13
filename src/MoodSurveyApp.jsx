@@ -17,7 +17,6 @@ export default function MoodSurveyApp() {
   const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxz8YFkWNmMNihqi2qB8NPNs8DNqzv-aKoeoZryQLDwQBOfQ9VOJKL4eHE4gibk4YzLng/exec";
 
   const pad = (v) => String(v).padStart(2, "0");
-
   const normalizeToMinute = (isoString) => {
     const date = new Date(isoString);
     date.setSeconds(0, 0);
@@ -38,7 +37,7 @@ export default function MoodSurveyApp() {
 
   const startSurvey = () => {
     if (!validatePre()) {
-      alert("請完整填寫出發前問卷與 ID");
+      alert("\u8acb\u5b8c\u6574\u586b\u5beb\u51fa\u767c\u524d\u554f\u5377\u8207 ID");
       return;
     }
     setStage("survey");
@@ -94,13 +93,13 @@ export default function MoodSurveyApp() {
       const txt = await res.text();
       alert(txt);
     } catch (err) {
-      alert("❌ 上傳失敗：" + err.message);
+      alert("\u274c \u4e0a\u50b3\u5931\u6557\uff1a" + err.message);
     }
   };
 
   const finalizeUpload = async () => {
     if (!validatePost()) {
-      alert("請完整填寫結束後問卷");
+      alert("\u8acb\u5b8c\u6574\u586b\u5beb\u7d50\u675f\u5f8c\u554f\u5377");
       return;
     }
     const data = getFilledResponses();
@@ -131,7 +130,6 @@ export default function MoodSurveyApp() {
 
     uploadToGDrive(csv, filename);
     setStage("done");
-    
   };
 
   const RangeQuestion = ({ label, left, center, right, value, onChange }) => (
@@ -140,11 +138,16 @@ export default function MoodSurveyApp() {
       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
         <span>{left}</span><span>{center}</span><span>{right}</span>
       </div>
-      <input type="range" min="1" max="9" value={value} onChange={(e) => onChange(parseInt(e.target.value))} style={{ width: '100%' }} />
-      <span>目前選擇：{value}</span>
-      
-  
-</div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', marginTop: 10 }}>
+        {[1,2,3,4,5,6,7,8,9].map((v) => (
+          <label key={v} style={{ flex: '1 0 10%', textAlign: 'center', marginBottom: 5 }}>
+            <input type="radio" name={label} value={v} checked={value === v} onChange={() => onChange(v)} />
+            <div>{v}</div>
+          </label>
+        ))}
+      </div>
+      <div>目前選擇：{value}</div>
+    </div>
   );
 
   const RadioQuestion = ({ label, options, value, onChange }) => (
@@ -159,9 +162,9 @@ export default function MoodSurveyApp() {
     </div>
   );
 
-  return (
+    return (
     <div style={{ padding: 20, fontFamily: 'Arial', maxWidth: 600, margin: 'auto' }}>
-          {stage === 'pre' && (
+      {stage === 'pre' && (
         <div>
           <h3>出發前問卷</h3>
           <input placeholder="請輸入 ID" value={userID} onChange={(e) => setUserID(e.target.value)} style={{ width: '100%', marginBottom: 10 }} />
@@ -215,9 +218,11 @@ export default function MoodSurveyApp() {
           </p>
         </div>
       )}
-        <div style={{ marginTop: 60, textAlign: 'center', fontSize: '0.8em', color: '#999' }}>
-    臺大運輸與社會研究室製
-  </div>
-</div>
+
+      <div style={{ marginTop: 60, textAlign: 'center', fontSize: '0.8em', color: '#999' }}>
+        臺大運輸與社會研究室製
+      </div>
+    </div>
   );
+
 }
