@@ -200,7 +200,7 @@ export default function MoodSurveyApp() {
         <div>
           <h3>結束後問卷</h3>
           <RangeQuestion label="您結束此刻的情緒" left="非常不愉快" center="中立" right="非常愉快" value={qPost.emotion} onChange={(v) => setQPost({ ...qPost, emotion: v })} />
-          <RangeQuestion label="您結束此刻的激動程度" left="非常冷靜" center="中性" right="非常興奮" value={qPost.arousal} onChange={(v) => setQPost({ ...qPost, arousal: v })} />
+          <RangeQuestion label="您結束此刻的激動程度" left="非常冷靜" center="中立" right="非常興奮" value={qPost.arousal} onChange={(v) => setQPost({ ...qPost, arousal: v })} />
           <RangeQuestion label="您結束此刻的焦慮程度" left="非常不焦慮" center="中立" right="非常焦慮" value={qPost.anxiety} onChange={(v) => setQPost({ ...qPost, anxiety: v })} />
           <div style={{ marginTop: 20 }}>
             <label><strong>您覺得大約騎了多久？（分鐘）</strong></label><br />
