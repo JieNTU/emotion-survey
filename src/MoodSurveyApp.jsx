@@ -20,7 +20,7 @@ export default function MoodSurveyApp() {
     dist: "", time: "", shortestDist: "", shortestTime: ""
   });
 
-  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz9DwhdHYxEkRbPpSlIuC9zd8awnaO3o5q6ecCYgwXToBzLfutNTgYQt7JxSoTucQ-rrw/exec";
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz4Q8c4q7G83FUMTzKguw7sQ0pncfqyDKHREoNh3aD3nQ5KN1l3CpNug-XXvPr-IIEJaQ/exec";
 
   const pad = (v) => String(v).padStart(2, "0");
   const normalizeToMinute = (isoString) => {
