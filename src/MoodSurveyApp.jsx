@@ -172,7 +172,7 @@ export default function MoodSurveyApp() {
           <RadioQuestion label={<span>您本次目的地<span style={{ color: 'red' }}>是否有去過</span>？</span>} options={["是", "否"]} value={qPre.beenThere} onChange={(val) => setQPre({ ...qPre, beenThere: val })} />
           <RadioQuestion label={<span>您本次是否有使用<span style={{ color: 'red' }}>導航</span>？</span>} options={["是", "否"]} value={qPre.usedGPS} onChange={(val) => setQPre({ ...qPre, usedGPS: val })} />
           <RangeQuestion label="您出發前此刻的情緒" left="非常不愉快" center="中立" right="非常愉快" value={qPre.emotion} onChange={(v) => setQPre({ ...qPre, emotion: v })} />
-          <RangeQuestion label="您出發前此刻的激動程度" left="非常冷靜" center="中性" right="非常興奮" value={qPre.arousal} onChange={(v) => setQPre({ ...qPre, arousal: v })} />
+          <RangeQuestion label="您出發前此刻的激動程度" left="非常冷靜" center="中立" right="非常興奮" value={qPre.arousal} onChange={(v) => setQPre({ ...qPre, arousal: v })} />
           <RangeQuestion label="您出發前此刻的焦慮程度" left="非常不焦慮" center="中立" right="非常焦慮" value={qPre.anxiety} onChange={(v) => setQPre({ ...qPre, anxiety: v })} />
           <button onClick={startSurvey} style={{ marginTop: 20, backgroundColor: '#4caf50', color: '#fff', padding: '10px 20px', borderRadius: 6 }}>開始</button>
         </div>
@@ -182,7 +182,7 @@ export default function MoodSurveyApp() {
         <div>
           <h3>問卷進行中：{new Date(currentQuestionTime).toLocaleTimeString()}</h3>
           <RangeQuestion label="Q1: 不愉快 - 中立 - 愉快" left="非常不愉快" center="中立" right="非常愉快" value={q1} onChange={setQ1} />
-          <RangeQuestion label="Q2: 沉靜 - 中性 - 興奮" left="非常冷靜" center="中性" right="非常興奮" value={q2} onChange={setQ2} />
+          <RangeQuestion label="Q2: 冷靜 - 中立 - 興奮" left="非常冷靜" center="中立" right="非常興奮" value={q2} onChange={setQ2} />
           <RangeQuestion label="Q3: 車流量" left="非常少" center="中等" right="非常多" value={traffic} onChange={setTraffic} />
           <button onClick={submitResponse} style={{ marginTop: 20, backgroundColor: '#4caf50', color: '#fff', padding: '10px 20px', borderRadius: 6 }}>提交本次問卷</button>
         </div>
