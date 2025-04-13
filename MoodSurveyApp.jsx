@@ -20,7 +20,7 @@ export default function MoodSurveyApp() {
     dist: "", time: "", shortestDist: "", shortestTime: ""
   });
 
-  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz9DwhdHYxEkRbPpSlIuC9zd8awnaO3o5q6ecCYgwXToBzLfutNTgYQt7JxSoTucQ-rrw/exec";
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz4Q8c4q7G83FUMTzKguw7sQ0pncfqyDKHREoNh3aD3nQ5KN1l3CpNug-XXvPr-IIEJaQ/exec";
 
   const pad = (v) => String(v).padStart(2, "0");
   const normalizeToMinute = (isoString) => {
@@ -29,12 +29,16 @@ export default function MoodSurveyApp() {
     return date.toISOString();
   };
 
-  const validatePre = () => {
-    return userID.trim() && qPre.purpose && qPre.beenThere && qPre.usedGPS;
-  };
+  const validatePre = () => userID.trim() && qPre.purpose && qPre.beenThere && qPre.usedGPS;
+  const validatePost = () => qPost.dist && qPost.time && qPost.shortestDist && qPost.shortestTime;
 
-  const validatePost = () => {
-    return qPost.dist && qPost.time && qPost.shortestDist && qPost.shortestTime;
+  const triggerQuestion = () => {
+    const now = new Date().toISOString();
+    setCurrentQuestionTime(now);
+    setQ1(5);
+    setQ2(5);
+    setTraffic(5);
+    setIsWaiting(false);
   };
 
   const startSurvey = () => {
@@ -56,11 +60,6 @@ export default function MoodSurveyApp() {
   };
 
   const finalizeUpload = async () => {
-    if (!validatePost()) {
-      alert("請完整填寫結束後問卷");
-      return;
-    }
-
     const data = getFilledResponses();
     if (data.length === 0) return;
 
@@ -105,25 +104,10 @@ export default function MoodSurveyApp() {
     }
   };
 
-  const triggerQuestion = () => {
-    const now = new Date().toISOString();
-    setCurrentQuestionTime(now);
-    setQ1(5);
-    setQ2(5);
-    setTraffic(5);
-    setIsWaiting(false);
-  };
-
   const submitResponse = () => {
     setResponses((prev) => [
       ...prev,
-      {
-        id: userID,
-        time: currentQuestionTime,
-        Q1: q1,
-        Q2: q2,
-        Traffic: traffic,
-      },
+      { id: userID, time: currentQuestionTime, Q1: q1, Q2: q2, Traffic: traffic },
     ]);
     setCurrentQuestionTime(null);
     setIsWaiting(true);
