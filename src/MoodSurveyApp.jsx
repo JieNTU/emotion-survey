@@ -1,8 +1,8 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef } from 'react';
 
 export default function MoodSurveyApp() {
-  const [userID, setUserID] = useState("");
-  const [stage, setStage] = useState("pre");
+  const [userID, setUserID] = useState('');
+  const [stage, setStage] = useState('pre');
   const [responses, setResponses] = useState([]);
   const [currentQuestionTime, setCurrentQuestionTime] = useState(null);
   const [q1, setQ1] = useState(5);
@@ -13,24 +13,21 @@ export default function MoodSurveyApp() {
   const intervalRef = useRef(null);
   const [qPre, setQPre] = useState({
     emotion: 5, arousal: 5, anxiety: 5,
-    purpose: "", beenThere: "", usedGPS: ""
+    purpose: '', beenThere: '', usedGPS: ''
   });
   const [qPost, setQPost] = useState({
     emotion: 5, arousal: 5, anxiety: 5,
-    dist: "", time: "", shortestDist: "", shortestTime: ""
+    dist: '', time: '', shortestDist: '', shortestTime: ''
   });
 
-  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz4Q8c4q7G83FUMTzKguw7sQ0pncfqyDKHREoNh3aD3nQ5KN1l3CpNug-XXvPr-IIEJaQ/exec";
+  const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz4Q8c4q7G83FUMTzKguw7sQ0pncfqyDKHREoNh3aD3nQ5KN1l3CpNug-XXvPr-IIEJaQ/exec';
 
-  const pad = (v) => String(v).padStart(2, "0");
+  const pad = (v) => String(v).padStart(2, '0');
   const normalizeToMinute = (isoString) => {
     const date = new Date(isoString);
     date.setSeconds(0, 0);
     return date.toISOString();
   };
-
-  const validatePre = () => userID.trim() && qPre.purpose && qPre.beenThere && qPre.usedGPS;
-  const validatePost = () => qPost.dist && qPost.time && qPost.shortestDist && qPost.shortestTime;
 
   const triggerQuestion = () => {
     const now = new Date().toISOString();
@@ -42,11 +39,11 @@ export default function MoodSurveyApp() {
   };
 
   const startSurvey = () => {
-    if (!validatePre()) {
-      alert("請完整填寫出發前問卷與 ID");
+    if (!userID.trim() || !qPre.purpose || !qPre.beenThere || !qPre.usedGPS) {
+      alert('請完整填寫出發前問卷與 ID');
       return;
     }
-    setStage("survey");
+    setStage('survey');
     setIsRunning(true);
     triggerQuestion();
     intervalRef.current = setInterval(triggerQuestion, 60000);
@@ -56,36 +53,32 @@ export default function MoodSurveyApp() {
     clearInterval(intervalRef.current);
     setIsRunning(false);
     setCurrentQuestionTime(null);
-    setStage("post");
+    setStage('post');
   };
 
   const finalizeUpload = async () => {
-    if (!validatePost()) {
-      alert("請完整填寫結束後問卷");
-      return;
-    }
     const data = getFilledResponses();
     if (data.length === 0) return;
 
     const csv = [
-      ["ID", "Time", "Q1", "Q2", "Traffic"],
+      ['ID', 'Time', 'Q1', 'Q2', 'Traffic'],
       ...data.map((r) => [r.id, r.time, r.Q1, r.Q2, r.Traffic]),
       [],
-      ["Pre-Emotion", qPre.emotion],
-      ["Pre-Arousal", qPre.arousal],
-      ["Pre-Anxiety", qPre.anxiety],
-      ["Pre-Purpose", qPre.purpose],
-      ["Pre-Been There", qPre.beenThere],
-      ["Pre-Used GPS", qPre.usedGPS],
+      ['Pre-Emotion', qPre.emotion],
+      ['Pre-Arousal', qPre.arousal],
+      ['Pre-Anxiety', qPre.anxiety],
+      ['Pre-Purpose', qPre.purpose],
+      ['Pre-Been There', qPre.beenThere],
+      ['Pre-Used GPS', qPre.usedGPS],
       [],
-      ["Post-Emotion", qPost.emotion],
-      ["Post-Arousal", qPost.arousal],
-      ["Post-Anxiety", qPost.anxiety],
-      ["Post-Distance (km)", qPost.dist],
-      ["Post-Duration (min)", qPost.time],
-      ["Post-Shortest Distance?", qPost.shortestDist],
-      ["Post-Shortest Time?", qPost.shortestTime],
-    ].map((row) => row.join(",")).join("\n");
+      ['Post-Emotion', qPost.emotion],
+      ['Post-Arousal', qPost.arousal],
+      ['Post-Anxiety', qPost.anxiety],
+      ['Post-Distance (km)', qPost.dist],
+      ['Post-Duration (min)', qPost.time],
+      ['Post-Shortest Distance?', qPost.shortestDist],
+      ['Post-Shortest Time?', qPost.shortestTime]
+    ].map((row) => row.join(',')).join('\n');
 
     const lastTime = data[data.length - 1].time;
     const t = new Date(lastTime);
@@ -93,20 +86,29 @@ export default function MoodSurveyApp() {
 
     try {
       const res = await fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ csv, filename })
       });
       const txt = await res.text();
       alert(txt);
-      setStage("done");
+      setStage('done');
     } catch (err) {
-      alert("❌ 上傳失敗：" + err.message);
+      alert('❌ 上傳失敗：' + err.message);
     }
   };
 
   const submitResponse = () => {
-    setResponses((prev) => [...prev, { id: userID, time: currentQuestionTime, Q1: q1, Q2: q2, Traffic: traffic }]);
+    setResponses((prev) => [
+      ...prev,
+      {
+        id: userID,
+        time: currentQuestionTime,
+        Q1: q1,
+        Q2: q2,
+        Traffic: traffic
+      }
+    ]);
     setCurrentQuestionTime(null);
     setIsWaiting(true);
   };
@@ -130,7 +132,7 @@ export default function MoodSurveyApp() {
       result.push(
         dedupedMap.has(key)
           ? dedupedMap.get(key)
-          : { id: userID, time: key, Q1: "NA", Q2: "NA", Traffic: "NA" }
+          : { id: userID, time: key, Q1: 'NA', Q2: 'NA', Traffic: 'NA' }
       );
       cursor.setMinutes(cursor.getMinutes() + 1);
     }
@@ -140,19 +142,12 @@ export default function MoodSurveyApp() {
   const RangeQuestion = ({ label, left, center, right, value, onChange }) => (
     <div style={{ marginTop: 20 }}>
       <label><strong>{label}</strong></label>
-      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
         <span>{left}</span>
         <span>{center}</span>
         <span>{right}</span>
       </div>
-      <input
-        type="range"
-        min="1"
-        max="9"
-        value={value}
-        onChange={(e) => onChange(parseInt(e.target.value))}
-        style={{ width: "100%" }}
-      />
+      <input type="range" min="1" max="9" value={value} onChange={(e) => onChange(parseInt(e.target.value))} style={{ width: '100%' }} />
       <span>目前選擇：{value}</span>
     </div>
   );
@@ -162,13 +157,7 @@ export default function MoodSurveyApp() {
       <label><strong>{label}</strong></label><br />
       {options.map((opt, i) => (
         <label key={i} style={{ marginRight: 10 }}>
-          <input
-            type="radio"
-            value={opt}
-            checked={value === opt}
-            onChange={() => onChange(opt)}
-            style={{ marginRight: 5 }}
-          />
+          <input type="radio" value={opt} checked={value === opt} onChange={() => onChange(opt)} style={{ marginRight: 5 }} />
           {opt}
         </label>
       ))}
@@ -177,7 +166,7 @@ export default function MoodSurveyApp() {
 
   return (
     <div style={{ padding: 20, fontFamily: 'Arial', maxWidth: 600, margin: 'auto' }}>
-      {stage === "pre" && (
+      {stage === 'pre' && (
         <div>
           <h3>出發前問卷</h3>
           <input placeholder="請輸入 ID" value={userID} onChange={(e) => setUserID(e.target.value)} style={{ width: '100%', marginBottom: 10 }} />
@@ -191,7 +180,7 @@ export default function MoodSurveyApp() {
         </div>
       )}
 
-      {stage === "survey" && currentQuestionTime && (
+      {stage === 'survey' && currentQuestionTime && (
         <div>
           <h3>問卷進行中：{new Date(currentQuestionTime).toLocaleTimeString()}</h3>
           <RangeQuestion label="Q1: 不愉快 - 中立 - 愉快" left="非常不愉快" center="中立" right="非常愉快" value={q1} onChange={setQ1} />
@@ -205,11 +194,11 @@ export default function MoodSurveyApp() {
         <p style={{ color: '#888', fontStyle: 'italic', marginTop: 20 }}>已提交，下一題問卷即將出現...</p>
       )}
 
-      {stage === "survey" && (
+      {stage === 'survey' && (
         <button onClick={stopSurvey} style={{ marginTop: 30, backgroundColor: '#f44336', color: '#fff', padding: '10px 20px', borderRadius: 6 }}>停止並填寫結束問卷</button>
       )}
 
-      {stage === "post" && (
+      {stage === 'post' && (
         <div>
           <h3>結束後問卷</h3>
           <RangeQuestion label="您結束此刻的情緒" left="非常不愉快" center="中立" right="非常愉快" value={qPost.emotion} onChange={(v) => setQPost({ ...qPost, emotion: v })} />
@@ -229,7 +218,7 @@ export default function MoodSurveyApp() {
         </div>
       )}
 
-      {stage === "done" && <p>✅ 資料已成功上傳，感謝您的填寫！</p>}
+      {stage === 'done' && <p>✅ 資料已成功上傳，感謝您的填寫！</p>}
     </div>
   );
 }
