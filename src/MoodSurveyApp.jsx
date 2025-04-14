@@ -37,7 +37,12 @@ export default function MoodSurveyApp() {
     setIsWaiting(false);
   };
 
-  const validatePre = () => userID.trim() && qPre.purpose && qPre.beenThere && qPre.usedGPS;
+  const validatePre = () =>
+    userID.trim() &&
+    userName.trim() &&
+    qPre.purpose &&
+    qPre.beenThere &&
+    qPre.usedGPS;
   const validatePost = () => {
     const fields = [qPost.emotion, qPost.arousal, qPost.anxiety, qPost.time, qPost.dist, qPost.shortestDist, qPost.shortestTime];
     return fields.every((v) => v !== "");
@@ -241,7 +246,7 @@ export default function MoodSurveyApp() {
 )}
 
 {isRunning && isWaiting && (
-  <p style={{ color: '#888', fontStyle: 'italic', marginTop: 20 }}>已提交，下一題問卷即將出現...</p>
+  <p style={{ color: '#888', fontStyle: 'italic', marginTop: 20 }}>已提交，下一題問卷將於一分鐘後出現...</p>
 )}
 
 {stage === 'survey' && (
