@@ -195,7 +195,7 @@ export default function MoodSurveyApp() {
         <div>
           <h3>出發前問卷</h3>
           <input placeholder="請輸入 ID" value={userID} onChange={(e) => setUserID(e.target.value)} style={{ width: '100%', marginBottom: 10 }} />
-          <RadioQuestion label="您這趟的目的" options={["上學", "打工", "用餐", "購物", "遊憩（運動、出遊）", "其他"]} value={qPre.purpose} onChange={(val) => setQPre({ ...qPre, purpose: val })} />
+          <RadioQuestion label="您這趟的目的" options={["上學", "打工", "用餐", "購物", "遊憩（運動、出遊）", "返家", "其他"]} value={qPre.purpose} onChange={(val) => setQPre({ ...qPre, purpose: val })} />
           <RadioQuestion label={<span>您本次目的地<span style={{ color: 'red' }}>是否有去過</span>？</span>} options={["是", "否"]} value={qPre.beenThere} onChange={(val) => setQPre({ ...qPre, beenThere: val })} />
           <RadioQuestion label={<span>您本次是否有使用<span style={{ color: 'red' }}>導航</span>？</span>} options={["是", "否"]} value={qPre.usedGPS} onChange={(val) => setQPre({ ...qPre, usedGPS: val })} />
           <RangeQuestion label="您出發前此刻的情緒" left="非常不愉快" center="中立" right="非常愉快" value={qPre.emotion} onChange={(v) => setQPre({ ...qPre, emotion: v })} />
