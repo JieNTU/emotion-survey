@@ -49,6 +49,8 @@ export default function MoodSurveyApp() {
   };
 
   useEffect(() => {
+    alert("請配戴手錶與心率帶，並於手錶按下開始");
+  
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden' && wakeLockRef.current) {
         wakeLockRef.current.release().then(() => {
@@ -59,6 +61,7 @@ export default function MoodSurveyApp() {
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
+  
 
   const startSurvey = async () => {
     try {
@@ -131,7 +134,7 @@ export default function MoodSurveyApp() {
         body: JSON.stringify({ csv: csvContent, filename }),
       });
       const txt = await res.text();
-      alert(txt);
+      alert(txt + "\n\n📍 請記得停止手錶紀錄並儲存！");
     } catch (err) {
       alert("❌ 上傳失敗：" + err.message);
     }
