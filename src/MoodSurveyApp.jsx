@@ -132,23 +132,23 @@ export default function MoodSurveyApp() {
     setStage("done");
   };
 
-  const RangeQuestion = ({ label, left, center, right, value, onChange }) => (
-    <div style={{ marginTop: 20 }}>
-      <label><strong>{label}</strong></label>
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
-        <span>{left}</span><span>{center}</span><span>{right}</span>
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', marginTop: 10 }}>
-        {[1,2,3,4,5,6,7,8,9].map((v) => (
-          <label key={v} style={{ flex: '1 0 10%', textAlign: 'center', marginBottom: 5 }}>
-            <input type="radio" name={label} value={v} checked={value === v} onChange={() => onChange(v)} />
-            <div>{v}</div>
-          </label>
-        ))}
-      </div>
-      <div>目前選擇：{value}</div>
-    </div>
-  );
+  // const RangeQuestion = ({ label, left, center, right, value, onChange }) => (
+  //   <div style={{ marginTop: 20 }}>
+  //     <label><strong>{label}</strong></label>
+  //     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
+  //       <span>{left}</span><span>{center}</span><span>{right}</span>
+  //     </div>
+  //     <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', marginTop: 10 }}>
+  //       {[1,2,3,4,5,6,7,8,9].map((v) => (
+  //         <label key={v} style={{ flex: '1 0 10%', textAlign: 'center', marginBottom: 5 }}>
+  //           <input type="radio" name={label} value={v} checked={value === v} onChange={() => onChange(v)} />
+  //           <div>{v}</div>
+  //         </label>
+  //       ))}
+  //     </div>
+  //     <div>目前選擇：{value}</div>
+  //   </div>
+  // );
 
   const RadioQuestion = ({ label, options, value, onChange }) => (
     <div style={{ marginTop: 20 }}>
@@ -162,6 +162,33 @@ export default function MoodSurveyApp() {
     </div>
   );
 
+  const RangeQuestion = ({ label, left, center, right, value, onChange }) => (
+    <div style={{ marginTop: 32 }}>
+      <label style={{ display: 'block', marginBottom: 12 }}><strong>{label}</strong></label>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', marginBottom: 8 }}>
+        <span>{left}</span>
+        <span style={{ marginLeft: 'auto', marginRight: 'auto' }}>{center}</span>
+        <span>{right}</span>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
+          <label key={n} style={{ textAlign: 'center', fontSize: '12px', fontWeight: '600', flex: 1 }}>
+            <input
+              type="radio"
+              name={label}
+              value={n}
+              checked={value === n}
+              onChange={() => onChange(n)}
+              style={{ transform: 'scale(1.5)', marginBottom: 4 }}
+            /><br />
+            {n}
+          </label>
+        ))}
+      </div>
+      <div style={{ textAlign: 'center', fontSize: 14, marginTop: 8 }}>目前選擇：{value}</div>
+    </div>
+  );
+  
     return (
     <div style={{ padding: 20, fontFamily: 'Arial', maxWidth: 600, margin: 'auto' }}>
       {stage === 'pre' && (
@@ -181,9 +208,9 @@ export default function MoodSurveyApp() {
       {stage === 'survey' && currentQuestionTime && (
         <div>
           <h3>問卷進行中：{new Date(currentQuestionTime).toLocaleTimeString()}</h3>
-          <RangeQuestion label="Q1: 不愉快 - 中立 - 愉快" left="非常不愉快" center="中立" right="非常愉快" value={q1} onChange={setQ1} />
-          <RangeQuestion label="Q2: 冷靜 - 中立 - 興奮" left="非常冷靜" center="中立" right="非常興奮" value={q2} onChange={setQ2} />
-          <RangeQuestion label="Q3: 車流量" left="非常少" center="中等" right="非常多" value={traffic} onChange={setTraffic} />
+          <RangeQuestion label="Q1: 此刻的情緒" left="非常不愉快" center="中立" right="非常愉快" value={q1} onChange={setQ1} />
+          <RangeQuestion label="Q2: 此刻的激動程度" left="非常冷靜" center="中立" right="非常興奮" value={q2} onChange={setQ2} />
+          <RangeQuestion label="Q3: 此刻的路上擁擠程度" left="非常順暢" center="中等" right="非常擁擠" value={traffic} onChange={setTraffic} />
           <button onClick={submitResponse} style={{ marginTop: 20, backgroundColor: '#4caf50', color: '#fff', padding: '10px 20px', borderRadius: 6 }}>提交本次問卷</button>
         </div>
       )}
@@ -200,7 +227,7 @@ export default function MoodSurveyApp() {
         <div>
           <h3>結束後問卷</h3>
           <RangeQuestion label="您結束此刻的情緒" left="非常不愉快" center="中立" right="非常愉快" value={qPost.emotion} onChange={(v) => setQPost({ ...qPost, emotion: v })} />
-          <RangeQuestion label="您結束此刻的激動程度" left="非常冷靜" center="中立" right="非常興奮" value={qPost.arousal} onChange={(v) => setQPost({ ...qPost, arousal: v })} />
+          <RangeQuestion label="您結束此刻的激動程度" left="非常冷靜" center="中性" right="非常興奮" value={qPost.arousal} onChange={(v) => setQPost({ ...qPost, arousal: v })} />
           <RangeQuestion label="您結束此刻的焦慮程度" left="非常不焦慮" center="中立" right="非常焦慮" value={qPost.anxiety} onChange={(v) => setQPost({ ...qPost, anxiety: v })} />
           <div style={{ marginTop: 20 }}>
             <label><strong>您覺得大約騎了多久？（分鐘）</strong></label><br />
