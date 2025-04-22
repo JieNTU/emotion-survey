@@ -18,7 +18,9 @@ export default function MoodSurveyApp() {
   const [uploading, setUploading] = useState(false);
   const [qPre, setQPre] = useState({ emotion: 5, arousal: 5, anxiety: 5, purpose: "", beenThere: "", usedGPS: "" });
   const [qPost, setQPost] = useState({ emotion: 5, arousal: 5, anxiety: 5, dist: "", time: "", shortestDist: "", shortestTime: "" });
-
+  const [csvBackup, setCsvBackup] = useState("");
+  const [filenameBackup, setFilenameBackup] = useState("");
+  
   const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxz8YFkWNmMNihqi2qB8NPNs8DNqzv-aKoeoZryQLDwQBOfQ9VOJKL4eHE4gibk4YzLng/exec";
 
   const pad = (v) => String(v).padStart(2, "0");
@@ -136,9 +138,23 @@ export default function MoodSurveyApp() {
       const txt = await res.text();
       alert(txt + "\n\n📍 請記得停止手錶紀錄並儲存！");
     } catch (err) {
-      alert("❌ 上傳失敗：" + err.message);
+      alert("❌ 上傳失敗：" + err.message + "\n將提供備份檔案下載。");
+      setCsvBackup(csvContent);
+      setFilenameBackup(filename);
+      throw err; // 🔁 傳遞給 finalizeUpload 的 try-catch 使用
     }
   };
+
+  const downloadCSV = () => {
+    const blob = new Blob([csvBackup], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filenameBackup || "backup.csv";
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+  
 
   const finalizeUpload = async () => {
     if (!validatePost()) {
@@ -170,9 +186,14 @@ export default function MoodSurveyApp() {
 
     const t = new Date();
     const filename = `${userID}_${pad(t.getMonth() + 1)}${pad(t.getDate())}_${pad(t.getHours())}${pad(t.getMinutes())}.csv`;
-    await uploadToGDrive(csv, filename);
-    setUploading(false);
-    setStage("done");
+    try {
+      await uploadToGDrive(csv, filename);
+      setStage("done"); // ✅ 只有成功上傳才切到 done
+    } catch (err) {
+      // 留在 post 顯示備份下載區塊
+    } finally {
+      setUploading(false);
+    }
   };
 
   const RangeQuestion = ({ label, left, center, right, value, onChange }) => (
@@ -228,7 +249,7 @@ export default function MoodSurveyApp() {
     <h3>出發前問卷</h3>
     <input placeholder="請輸入 ID" value={userID} onChange={(e) => setUserID(e.target.value)} style={{ width: '100%', marginBottom: 10 }} />
     <input placeholder="請輸入姓名" value={userName} onChange={(e) => setUserName(e.target.value)} style={{ width: '100%', marginBottom: 10 }} />
-    <RadioQuestion label="您這趟的目的" options={["上學", "打工", "用餐", "購物", "遊憩（運動、出遊）", "返家", "接送", "其他"]} value={qPre.purpose} onChange={(val) => setQPre({ ...qPre, purpose: val })} />
+    <RadioQuestion label="您這趟的目的" options={["上學", "打工", "用餐", "購物", "遊憩（運動、出遊）", "返家", "其他"]} value={qPre.purpose} onChange={(val) => setQPre({ ...qPre, purpose: val })} />
     <RadioQuestion label={<span>您本次目的地<span style={{ color: 'red' }}>是否有去過</span>？</span>} options={["是", "否"]} value={qPre.beenThere} onChange={(val) => setQPre({ ...qPre, beenThere: val })} />
     <RadioQuestion label={<span>您本次是否有使用<span style={{ color: 'red' }}>導航</span>？</span>} options={["是", "否"]} value={qPre.usedGPS} onChange={(val) => setQPre({ ...qPre, usedGPS: val })} />
     <RangeQuestion label="您出發前此刻的情緒" left="非常不愉快" center="中立" right="非常愉快" value={qPre.emotion} onChange={(v) => setQPre({ ...qPre, emotion: v })} />
@@ -262,24 +283,40 @@ export default function MoodSurveyApp() {
     <RangeQuestion label="您結束此刻的情緒" left="非常不愉快" center="中立" right="非常愉快" value={qPost.emotion} onChange={(v) => setQPost({ ...qPost, emotion: v })} />
     <RangeQuestion label="您結束此刻的激動程度" left="非常冷靜" center="中性" right="非常興奮" value={qPost.arousal} onChange={(v) => setQPost({ ...qPost, arousal: v })} />
     <RangeQuestion label="您結束此刻的焦慮程度" left="非常不焦慮" center="中立" right="非常焦慮" value={qPost.anxiety} onChange={(v) => setQPost({ ...qPost, anxiety: v })} />
+    
     <div style={{ marginTop: 20 }}>
       <label><strong>您覺得大約騎了多久？（分鐘）</strong></label><br />
       <input placeholder="請填寫數字，可有小數點" value={qPost.time} onChange={(e) => setQPost({ ...qPost, time: e.target.value })} style={{ width: '100%' }} />
     </div>
+
     <div style={{ marginTop: 20 }}>
       <label><strong>您覺得大約騎了多遠？（公里）</strong></label><br />
       <input placeholder="請填寫數字，可有小數點" value={qPost.dist} onChange={(e) => setQPost({ ...qPost, dist: e.target.value })} style={{ width: '100%' }} />
     </div>
+
     <RadioQuestion label={<span>您覺得此次是<span style={{ color: 'red' }}>最短距離</span>路徑嗎？</span>} options={["是", "否"]} value={qPost.shortestDist} onChange={(val) => setQPost({ ...qPost, shortestDist: val })} />
     <RadioQuestion label={<span>您覺得此次是<span style={{ color: 'red' }}>最短時間</span>路徑嗎？</span>} options={["是", "否"]} value={qPost.shortestTime} onChange={(val) => setQPost({ ...qPost, shortestTime: val })} />
+
     <button disabled={uploading} onClick={finalizeUpload} style={{ marginTop: 20, backgroundColor: '#2196f3', color: '#fff', padding: '10px 20px', borderRadius: 6 }}>
       {uploading ? "上傳中..." : "送出全部資料"}
     </button>
+
     <p style={{ fontSize: '0.9em', color: 'red', marginTop: 6 }}>
       請等待跳出上傳成功訊息再離開
     </p>
+
+    {csvBackup && !uploading && (
+      <div style={{ marginTop: 20 }}>
+        <button onClick={downloadCSV} style={{ backgroundColor: '#ff9800', color: '#fff', padding: '10px 20px', borderRadius: 6 }}>
+          下載至裝置
+        </button>
+        <p style={{ color: '#f44336', marginTop: 6 }}>⚠️ 資料未成功上傳，請下載保存再離開，並請寄至 geog404lab@gmail.com </p>
+      </div>
+    )}
   </div>
 )}
+
+
 
 <div style={{ marginTop: 60, textAlign: 'center', fontSize: '0.8em', color: '#999' }}>
         臺大運輸與社會研究室製
