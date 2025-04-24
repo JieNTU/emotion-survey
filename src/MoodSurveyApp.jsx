@@ -223,11 +223,13 @@ export default function MoodSurveyApp() {
     </div>
   );
 
+
   const RadioQuestion = ({ label, options, value, onChange }) => (
-    <div style={{ marginTop: 20 }}>
-      <label><strong>{label}</strong></label><br />
+  <div style={{ marginTop: 20 }}>
+    <label><strong>{label}</strong></label><br />
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: 8 }}>
       {options.map((opt, i) => (
-        <label key={i} style={{ marginRight: 16, fontSize: '18px', fontWeight: '500' }}>
+        <label key={opt} style={{ fontSize: '18px', fontWeight: '500', display: 'flex', alignItems: 'center' }}>
           <input
             type="radio"
             value={opt}
@@ -239,7 +241,8 @@ export default function MoodSurveyApp() {
         </label>
       ))}
     </div>
-  );
+  </div>
+);
 
   return (
     <div style={{ padding: 20, fontFamily: 'Arial', maxWidth: 600, margin: 'auto' }}>
