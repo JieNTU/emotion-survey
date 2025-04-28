@@ -223,13 +223,11 @@ export default function MoodSurveyApp() {
     </div>
   );
 
-
   const RadioQuestion = ({ label, options, value, onChange }) => (
-  <div style={{ marginTop: 20 }}>
-    <label><strong>{label}</strong></label><br />
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: 8 }}>
+    <div style={{ marginTop: 20 }}>
+      <label><strong>{label}</strong></label><br />
       {options.map((opt, i) => (
-        <label key={opt} style={{ fontSize: '18px', fontWeight: '500', display: 'flex', alignItems: 'center' }}>
+        <label key={i} style={{ marginRight: 16, fontSize: '18px', fontWeight: '500' }}>
           <input
             type="radio"
             value={opt}
@@ -241,15 +239,30 @@ export default function MoodSurveyApp() {
         </label>
       ))}
     </div>
-  </div>
-);
+  );
+
+  const Banner = ({ children }) => (
+    <div style={{
+      background: 'linear-gradient(to right, #6a11cb, #2575fc)', // 藍紫漸層
+      padding: '16px 24px',
+      textAlign: 'center',
+      borderRadius: '12px',
+      boxShadow: '0 4px 10px rgba(0, 0, 0, 0.15)',
+      color: 'white',
+      fontSize: '24px',
+      fontWeight: 'bold',
+      marginBottom: '24px',
+    }}>
+      {children}
+    </div>
+  );
 
   return (
     <div style={{ padding: 20, fontFamily: 'Arial', maxWidth: 600, margin: 'auto' }}>
       <h2 style={{ textAlign: 'center' }}>情緒問卷調查</h2>
       {stage === 'pre' && (
   <div>
-    <h3>出發前問卷</h3>
+    <Banner>1. 出發前問卷</Banner>
     <input placeholder="請輸入 ID" value={userID} onChange={(e) => setUserID(e.target.value)} style={{ width: '100%', marginBottom: 10 }} />
     <input placeholder="請輸入姓名" value={userName} onChange={(e) => setUserName(e.target.value)} style={{ width: '100%', marginBottom: 10 }} />
     <RadioQuestion label="您這趟的目的" options={["上學", "打工", "用餐", "購物", "遊憩（運動、出遊）", "返家", "其他"]} value={qPre.purpose} onChange={(val) => setQPre({ ...qPre, purpose: val })} />
@@ -264,7 +277,7 @@ export default function MoodSurveyApp() {
 
 {stage === 'survey' && currentQuestionTime && (
   <div>
-    <h3>問卷進行中：{new Date(currentQuestionTime).toLocaleTimeString()}</h3>
+    <Banner>2. 情緒問卷：{new Date(currentQuestionTime).toLocaleTimeString()}</Banner>
     <RangeQuestion label="Q1: 此刻的情緒" left="非常不愉快" center="中立" right="非常愉快" value={q1} onChange={setQ1} />
     <RangeQuestion label="Q2: 此刻的激動程度" left="非常冷靜" center="中立" right="非常興奮" value={q2} onChange={setQ2} />
     <RangeQuestion label="Q3: 此刻的路上擁擠程度" left="非常順暢" center="中等" right="非常擁擠" value={traffic} onChange={setTraffic} />
@@ -282,7 +295,7 @@ export default function MoodSurveyApp() {
 
 {stage === 'post' && (
   <div>
-    <h3>結束後問卷</h3>
+    <Banner>3. 結束後問卷</Banner>
     <RangeQuestion label="您結束此刻的情緒" left="非常不愉快" center="中立" right="非常愉快" value={qPost.emotion} onChange={(v) => setQPost({ ...qPost, emotion: v })} />
     <RangeQuestion label="您結束此刻的激動程度" left="非常冷靜" center="中性" right="非常興奮" value={qPost.arousal} onChange={(v) => setQPost({ ...qPost, arousal: v })} />
     <RangeQuestion label="您結束此刻的焦慮程度" left="非常不焦慮" center="中立" right="非常焦慮" value={qPost.anxiety} onChange={(v) => setQPost({ ...qPost, anxiety: v })} />
