@@ -226,18 +226,20 @@ export default function MoodSurveyApp() {
   const RadioQuestion = ({ label, options, value, onChange }) => (
     <div style={{ marginTop: 20 }}>
       <label><strong>{label}</strong></label><br />
-      {options.map((opt, i) => (
-        <label key={i} style={{ marginRight: 16, fontSize: '18px', fontWeight: '500' }}>
-          <input
-            type="radio"
-            value={opt}
-            checked={value === opt}
-            onChange={() => onChange(opt)}
-            style={{ marginRight: 8 }}
-          />
-          {opt}
-        </label>
-      ))}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: 8 }}>
+        {options.map((opt, i) => (
+          <label key={opt} style={{ fontSize: '18px', fontWeight: '500', display: 'flex', alignItems: 'center' }}>
+            <input
+              type="radio"
+              value={opt}
+              checked={value === opt}
+              onChange={() => onChange(opt)}
+              style={{ marginRight: 8 }}
+            />
+            {opt}
+          </label>
+        ))}
+      </div>
     </div>
   );
 
@@ -265,7 +267,7 @@ export default function MoodSurveyApp() {
     <Banner>1. 出發前問卷</Banner>
     <input placeholder="請輸入 ID" value={userID} onChange={(e) => setUserID(e.target.value)} style={{ width: '100%', marginBottom: 10 }} />
     <input placeholder="請輸入姓名" value={userName} onChange={(e) => setUserName(e.target.value)} style={{ width: '100%', marginBottom: 10 }} />
-    <RadioQuestion label="您這趟的目的" options={["上學", "打工", "用餐", "購物", "遊憩（運動、出遊）", "返家", "其他"]} value={qPre.purpose} onChange={(val) => setQPre({ ...qPre, purpose: val })} />
+    <RadioQuestion label="您這趟的目的" options={["上學", "打工", "用餐", "購物", "遊憩（運動、出遊）", "返家", "接送", "其他"]} value={qPre.purpose} onChange={(val) => setQPre({ ...qPre, purpose: val })} />
     <RadioQuestion label={<span>您本次目的地<span style={{ color: 'red' }}>是否有去過</span>？</span>} options={["是", "否"]} value={qPre.beenThere} onChange={(val) => setQPre({ ...qPre, beenThere: val })} />
     <RadioQuestion label={<span>您本次是否有使用<span style={{ color: 'red' }}>導航</span>？</span>} options={["是", "否"]} value={qPre.usedGPS} onChange={(val) => setQPre({ ...qPre, usedGPS: val })} />
     <RangeQuestion label="您出發前此刻的情緒" left="非常不愉快" center="中立" right="非常愉快" value={qPre.emotion} onChange={(v) => setQPre({ ...qPre, emotion: v })} />
