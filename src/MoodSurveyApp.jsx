@@ -51,7 +51,7 @@ export default function MoodSurveyApp() {
   };
 
   useEffect(() => {
-    alert("請配戴手錶與心率帶，並於手錶按下開始");
+    // alert("請配戴手錶與心率帶，並於手錶按下開始");
   
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden' && wakeLockRef.current) {
@@ -66,6 +66,7 @@ export default function MoodSurveyApp() {
   
 
   const startSurvey = async () => {
+    alert("📍 請配戴手錶與心率帶，並於手錶按下開始");
     try {
       if ('wakeLock' in navigator) {
         wakeLockRef.current = await navigator.wakeLock.request('screen');
@@ -87,6 +88,7 @@ export default function MoodSurveyApp() {
   };
 
   const stopSurvey = async () => {
+    alert("📍 請記得停止手錶紀錄並儲存！");
     if (wakeLockRef.current) {
       try {
         await wakeLockRef.current.release();
@@ -136,7 +138,7 @@ export default function MoodSurveyApp() {
         body: JSON.stringify({ csv: csvContent, filename }),
       });
       const txt = await res.text();
-      alert(txt + "\n\n📍 請記得停止手錶紀錄並儲存！");
+      alert(txt + "\n\n 感謝您的協助！");
     } catch (err) {
       alert("❌ 上傳失敗：" + err.message + "\n將提供備份檔案下載。");
       setCsvBackup(csvContent);
@@ -280,6 +282,7 @@ export default function MoodSurveyApp() {
 {stage === 'survey' && currentQuestionTime && (
   <div>
     <Banner>2. 情緒問卷：{new Date(currentQuestionTime).toLocaleTimeString()}</Banner>
+    <h2 style={{ textAlign: 'center', color: 'red', fontWeight: 'bold' }}>⭐ 請務必於每次停等紅燈時進行填答 ⭐</h2>
     <RangeQuestion label="Q1: 此刻的情緒" left="非常不愉快" center="中立" right="非常愉快" value={q1} onChange={setQ1} />
     <RangeQuestion label="Q2: 此刻的激動程度" left="非常冷靜" center="中立" right="非常興奮" value={q2} onChange={setQ2} />
     <RangeQuestion label="Q3: 此刻的路上擁擠程度" left="非常順暢" center="中等" right="非常擁擠" value={traffic} onChange={setTraffic} />
