@@ -88,7 +88,7 @@ export default function MoodSurveyApp() {
   };
 
   const stopSurvey = async () => {
-    alert("📍 請記得停止手錶紀錄並儲存！");
+    alert("📍 請記得停止手錶紀錄並儲存！ /n/n 📍 請記得填寫結束後問卷並上傳！");
     if (wakeLockRef.current) {
       try {
         await wakeLockRef.current.release();
