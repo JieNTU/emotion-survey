@@ -21,7 +21,8 @@ export default function MoodSurveyApp() {
   const [csvBackup, setCsvBackup] = useState("");
   const [filenameBackup, setFilenameBackup] = useState("");
   
-  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxz8YFkWNmMNihqi2qB8NPNs8DNqzv-aKoeoZryQLDwQBOfQ9VOJKL4eHE4gibk4YzLng/exec";
+  const GOOGLE_SCRIPT_URL = process.env.REACT_APP_GOOGLE_SCRIPT_URL;
+
 
   const pad = (v) => String(v).padStart(2, "0");
   const normalizeToMinute = (isoString) => {
