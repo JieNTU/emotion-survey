@@ -1,0 +1,14 @@
+# 忽略 node_modules
+node_modules/
+
+# 忽略 build 資料夾
+build/
+
+# 忽略環境變數設定檔
+.env
+.env.local
+.env.production.local
+
+# macOS & VSCode
+.DS_Store
+.vscode/
