@@ -16,13 +16,12 @@ export default function MoodSurveyApp() {
   const [traffic, setTraffic] = useState(5);
   const [isWaiting, setIsWaiting] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [qPre, setQPre] = useState({ emotion: 5, arousal: 5, anxiety: 5, purpose: "", beenThere: "", usedGPS: "" });
+  const [qPre, setQPre] = useState({ emotion: 5, arousal: 5, anxiety: 5, purpose: "", beenThere: "", usedGPS: "" , passenger:""});
   const [qPost, setQPost] = useState({ emotion: 5, arousal: 5, anxiety: 5, dist: "", time: "", shortestDist: "", shortestTime: "" });
   const [csvBackup, setCsvBackup] = useState("");
   const [filenameBackup, setFilenameBackup] = useState("");
   
   const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxz8YFkWNmMNihqi2qB8NPNs8DNqzv-aKoeoZryQLDwQBOfQ9VOJKL4eHE4gibk4YzLng/exec";
-
 
   const pad = (v) => String(v).padStart(2, "0");
   const normalizeToMinute = (isoString) => {
@@ -45,7 +44,8 @@ export default function MoodSurveyApp() {
     userName.trim() &&
     qPre.purpose &&
     qPre.beenThere &&
-    qPre.usedGPS;
+    qPre.usedGPS &&
+    qPre.passenger;
   const validatePost = () => {
     const fields = [qPost.emotion, qPost.arousal, qPost.anxiety, qPost.time, qPost.dist, qPost.shortestDist, qPost.shortestTime];
     return fields.every((v) => v !== "");
@@ -177,6 +177,7 @@ export default function MoodSurveyApp() {
       ["Pre-Purpose", qPre.purpose],
       ["Pre-Been There", qPre.beenThere],
       ["Pre-Used GPS", qPre.usedGPS],
+      ["Pre-Passenger", qPre.passenger],
       [],
       ["Post-Emotion", qPost.emotion],
       ["Post-Arousal", qPost.arousal],
@@ -273,6 +274,7 @@ export default function MoodSurveyApp() {
     <RadioQuestion label="您這趟的目的" options={["上學", "打工", "用餐", "購物", "遊憩（運動、出遊）", "返家", "接送", "其他"]} value={qPre.purpose} onChange={(val) => setQPre({ ...qPre, purpose: val })} />
     <RadioQuestion label={<span>您本次目的地<span style={{ color: 'red' }}>是否有去過</span>？</span>} options={["是", "否"]} value={qPre.beenThere} onChange={(val) => setQPre({ ...qPre, beenThere: val })} />
     <RadioQuestion label={<span>您本次是否有使用<span style={{ color: 'red' }}>導航</span>？</span>} options={["是", "否"]} value={qPre.usedGPS} onChange={(val) => setQPre({ ...qPre, usedGPS: val })} />
+    <RadioQuestion label={<span>您本次是否<span style={{ color: 'red' }}>有乘客</span>？</span>} options={["有", "無"]} value={qPre.passenger} onChange={(val) => setQPre({ ...qPre, passenger: val })} />
     <RangeQuestion label="您出發前此刻的情緒" left="非常不愉快" center="中立" right="非常愉快" value={qPre.emotion} onChange={(v) => setQPre({ ...qPre, emotion: v })} />
     <RangeQuestion label="您出發前此刻的激動程度" left="非常冷靜" center="中立" right="非常興奮" value={qPre.arousal} onChange={(v) => setQPre({ ...qPre, arousal: v })} />
     <RangeQuestion label="您出發前此刻的焦慮程度" left="非常不焦慮" center="中立" right="非常焦慮" value={qPre.anxiety} onChange={(v) => setQPre({ ...qPre, anxiety: v })} />
