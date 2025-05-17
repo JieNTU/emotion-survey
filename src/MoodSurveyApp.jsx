@@ -24,8 +24,24 @@ const MoodSurveyApp = () => {
   const [traffic, setTraffic] = useState(getInitialState('traffic', 5));
   const [isWaiting, setIsWaiting] = useState(getInitialState('isWaiting', false));
   const [uploading, setUploading] = useState(getInitialState('uploading', false));
-  const [qPre, setQPre] = useState(getInitialState('qPre', { emotion: 5, arousal: 5, anxiety: 5, purpose: '', beenThere: '', usedGPS: '', passenger: '' }));
-  const [qPost, setQPost] = useState(getInitialState('qPost', { emotion: 5, arousal: 5, anxiety: 5, dist: '', time: '', shortestDist: '', shortestTime: '' }));
+  const [qPre, setQPre] = useState(getInitialState('qPre', { 
+    emotion: null, 
+    arousal: null, 
+    anxiety: null, 
+    purpose: '', 
+    beenThere: '', 
+    usedGPS: '', 
+    passenger: '' 
+  }));
+  const [qPost, setQPost] = useState(getInitialState('qPost', { 
+    emotion: null, 
+    arousal: null, 
+    anxiety: null, 
+    dist: '', 
+    time: '', 
+    shortestDist: '', 
+    shortestTime: '' 
+  }));
   const [csvBackup, setCsvBackup] = useState(getInitialState('csvBackup', ''));
   const [filenameBackup, setFilenameBackup] = useState(getInitialState('filenameBackup', ''));
   const [countdown, setCountdown] = useState(getInitialState('countdown', 300));
@@ -137,17 +153,46 @@ const MoodSurveyApp = () => {
     updateQuestionProgress('traffic', v);
   };
 
-  const validatePre = () =>
-    userID.trim() &&
-    userName.trim() &&
-    qPre.purpose &&
-    qPre.beenThere &&
-    qPre.usedGPS &&
-    qPre.passenger;
+  const validatePre = () => {
+    const missingFields = [];
+    if (!userID.trim()) missingFields.push('ID');
+    if (!userName.trim()) missingFields.push('姓名');
+    if (!qPre.purpose) missingFields.push('這趟的目的');
+    if (!qPre.beenThere) missingFields.push('目的地是否去過');
+    if (!qPre.usedGPS) missingFields.push('是否使用導航');
+    if (!qPre.passenger) missingFields.push('是否有乘客');
+    if (qPre.emotion === null) missingFields.push('出發前情緒');
+    if (qPre.arousal === null) missingFields.push('出發前激動程度');
+    if (qPre.anxiety === null) missingFields.push('出發前焦慮程度');
+    
+    if (missingFields.length > 0) {
+      return { isValid: false, missingFields };
+    }
+    return { isValid: true };
+  };
 
   const validatePost = () => {
-    const fields = [qPost.emotion, qPost.arousal, qPost.anxiety, qPost.time, qPost.dist, qPost.shortestDist, qPost.shortestTime];
-    return fields.every((v) => v !== '');
+    const missingFields = [];
+    if (qPost.emotion === null) missingFields.push('結束後情緒');
+    if (qPost.arousal === null) missingFields.push('結束後激動程度');
+    if (qPost.anxiety === null) missingFields.push('結束後焦慮程度');
+    if (!qPost.dist.trim()) missingFields.push('騎行距離');
+    if (!qPost.time.trim()) missingFields.push('騎行時間');
+    if (!qPost.shortestDist) missingFields.push('是否最短距離路徑');
+    if (!qPost.shortestTime) missingFields.push('是否最短時間路徑');
+    
+    // 驗證 dist 和 time 是有效數字
+    if (qPost.dist.trim() && (isNaN(qPost.dist) || Number(qPost.dist) <= 0)) {
+      missingFields.push('騎行距離（必須是正數）');
+    }
+    if (qPost.time.trim() && (isNaN(qPost.time) || Number(qPost.time) <= 0)) {
+      missingFields.push('騎行時間（必須是正數）');
+    }
+    
+    if (missingFields.length > 0) {
+      return { isValid: false, missingFields };
+    }
+    return { isValid: true };
   };
 
   useEffect(() => {
@@ -174,8 +219,9 @@ const MoodSurveyApp = () => {
     if (videoRef.current) {
       videoRef.current.play().catch(err => console.warn('iOS video play failed', err));
     }
-    if (!validatePre()) {
-      alert('請完整填寫出發前問卷');
+    const validation = validatePre();
+    if (!validation.isValid) {
+      alert(`請完整填寫出發前問卷，以下欄位未填：\n- ${validation.missingFields.join('\n- ')}`);
       return;
     }
     const now = new Date().toISOString();
@@ -269,8 +315,9 @@ const MoodSurveyApp = () => {
   };
 
   const finalizeUpload = async () => {
-    if (!validatePost()) {
-      alert('請完整填寫結束後問卷');
+    const validation = validatePost();
+    if (!validation.isValid) {
+      alert(`請完整填寫結束後問卷，以下欄位未填或無效：\n- ${validation.missingFields.join('\n- ')}`);
       return;
     }
     const data = getFilledResponses();
@@ -355,8 +402,8 @@ const MoodSurveyApp = () => {
     setTraffic(5);
     setIsWaiting(false);
     setUploading(false);
-    setQPre({ emotion: 5, arousal: 5, anxiety: 5, purpose: '', beenThere: '', usedGPS: '', passenger: '' });
-    setQPost({ emotion: 5, arousal: 5, anxiety: 5, dist: '', time: '', shortestDist: '', shortestTime: '' });
+    setQPre({ emotion: null, arousal: null, anxiety: null, purpose: '', beenThere: '', usedGPS: '', passenger: '' });
+    setQPost({ emotion: null, arousal: null, anxiety: null, dist: '', time: '', shortestDist: '', shortestTime: '' });
     setCsvBackup('');
     setFilenameBackup('');
     setCountdown(300);
@@ -375,7 +422,7 @@ const MoodSurveyApp = () => {
 
   const RangeQuestion = ({ label, left, center, right, value, onChange }) => (
     <div className="mt-8">
-      <label className="block mb-3 font-bold">{label}</label>
+      <label className="block mb-3 font-bold">{label} <span className="text-red-500">*</span></label>
       <div className="flex justify-between text-base mb-2">
         <span>{left}</span>
         <span className="mx-auto">{center}</span>
@@ -396,13 +443,13 @@ const MoodSurveyApp = () => {
           </label>
         ))}
       </div>
-      <div className="text-center text-sm mt-2">目前選擇：{value}</div>
+      <div className="text-center text-sm mt-2">目前選擇：{value !== null ? value : '未選擇'}</div>
     </div>
   );
 
   const RadioQuestion = ({ label, options, value, onChange }) => (
     <div className="mt-5">
-      <label className="font-bold">{label}</label><br />
+      <label className="font-bold">{label} <span className="text-red-500">*</span></label><br />
       <div className="flex flex-wrap gap-4 mt-2">
         {options.map((opt) => (
           <label key={opt} className="text-lg font-medium flex items-center">
@@ -433,13 +480,13 @@ const MoodSurveyApp = () => {
         <div>
           <Banner>1. 出發前問卷</Banner>
           <input
-            placeholder="請輸入 ID"
+            placeholder="請輸入 ID *"
             value={userID}
             onChange={(e) => setUserID(e.target.value)}
             className="w-full mb-3 p-2 border rounded"
           />
           <input
-            placeholder="請輸入姓名"
+            placeholder="請輸入姓名 *"
             value={userName}
             onChange={(e) => setUserName(e.target.value)}
             className="w-full mb-3 p-2 border rounded"
@@ -582,7 +629,7 @@ const MoodSurveyApp = () => {
             onChange={(v) => setQPost({ ...qPost, anxiety: v })}
           />
           <div className="mt-5">
-            <label className="font-bold">您覺得大約騎了多久？（分鐘）</label><br />
+            <label className="font-bold">您覺得大約騎了多久？（分鐘） <span className="text-red-500">*</span></label><br />
             <input
               placeholder="請填寫數字，可有小數點"
               value={qPost.time}
@@ -591,7 +638,7 @@ const MoodSurveyApp = () => {
             />
           </div>
           <div className="mt-5">
-            <label className="font-bold">您覺得大約騎了多遠？（公里）</label><br />
+            <label className="font-bold">您覺得大約騎了多遠？（公里） <span className="text-red-500">*</span></label><br />
             <input
               placeholder="請填寫數字，可有小數點"
               value={qPost.dist}
